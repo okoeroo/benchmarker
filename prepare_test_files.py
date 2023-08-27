@@ -102,14 +102,12 @@ def file_generation(args, case_name, file_count, file_size):
 def main(args):
 
     file_generation(args, "case_1", 1000, 1024)
-
     file_generation(args, "case_2", 10 * 1000, 1024)
-
     file_generation(args, "case_3", 100 * 1000, 1024)
-
     file_generation(args, "case_4", 1000, 1024 ** 2)
-
     file_generation(args, "case_5", 100, 1024 ** 3)
+    file_generation(args, "case_6", 20, 10 * 1024 ** 3)
+    file_generation(args, "case_7", 2, 50 * 1024 ** 3)
 
 
 ### Start up
