@@ -1,9 +1,12 @@
 #!/usr/bin/python3
 
 import os
+import sys
 import argparse
 import uuid
 import hashlib
+import math
+from progress.bar import Bar
 
 
 def argparsing():
@@ -25,9 +28,17 @@ def argparsing():
                         default="/tmp",
                         type=str)
 
-
     return parser.parse_args()
 
+
+def convert_size(size_bytes):
+   if size_bytes == 0:
+       return "0B"
+   size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+   i = int(math.floor(math.log(size_bytes, 1024)))
+   p = math.pow(1024, i)
+   s = round(size_bytes / p, 2)
+   return "%s %s" % (s, size_name[i])
 
 
 def create_file(path, num_of_bytes):
@@ -39,6 +50,7 @@ def create_file(path, num_of_bytes):
 
 def construct_path(root_dir, case_name, file_name):
     return "/".join([root_dir, case_name, file_name])
+
 
 def generate_random_name():
     return str(uuid.uuid4())
@@ -55,29 +67,36 @@ def calc_sha256_from_path_in_hex(path):
 
 
 def file_generation(args, case_name, file_count, file_size):
-    for x in range(file_count):
-        # Create path
-        path = construct_path(args.root_dir,
-                              case_name,
-                              generate_random_name())
+    conv_size = convert_size(file_size)
+    with Bar(f'{case_name}: Generating {file_count} files of {conv_size}',
+                suffix='%(percent).1f%% - %(eta)ds') as bar:
+        for x in range(file_count):
+            # Create path
+            path = construct_path(args.root_dir,
+                                  case_name,
+                                  generate_random_name())
 
-        # Check if directory exists
-        if not os.path.exists(os.path.dirname(path)):
-            os.mkdir(os.path.dirname(path))
-            print(f"Notice: {os.path.dirname(path)} created")
+            # Check if directory exists
+            if not os.path.exists(os.path.dirname(path)):
+                os.mkdir(os.path.dirname(path))
+                if args.verbose:
+                    print(f"Notice: {os.path.dirname(path)} created")
 
-        # Generate file
-        create_file(path, file_size)
+            # Generate file
+            create_file(path, file_size)
 
-        # SHA256
-        sha256_hex_val = calc_sha256_from_path_in_hex(path)
+            # SHA256
+            sha256_hex_val = calc_sha256_from_path_in_hex(path)
 
-        # Move file to hashvalue
-        path2 = construct_path(args.root_dir,
-                               case_name,
-                               sha256_hex_val)
-        os.rename(path, path2)
-        print(f"Notice: file {path2} ({file_size}) created")
+            # Move file to hashvalue
+            path2 = construct_path(args.root_dir,
+                                   case_name,
+                                   sha256_hex_val)
+            os.rename(path, path2)
+            if args.verbose:
+                print(f"Notice: file {path2} ({file_size}) created")
+
+            bar.next()
 
 ### Main
 def main(args):
@@ -85,14 +104,19 @@ def main(args):
     print("Case 1: Create 1000 files of 1k size")
     file_generation(args, "case_1", 1000, 1024)
 
-    print("Case 2: Create 1000000 files of 1k size")
-    file_generation(args, "case_2", 1000 * 1000, 1024)
+    sys.exit(0)
 
-    print("Case 3: Create 10 files of 1M size")
-    file_generation(args, "case_3", 10, 1024 * 1024)
+    print("Case 2: Create 10.000 files of 1k size")
+    file_generation(args, "case_2", 10 * 1000, 1024)
 
-    print("Case 4: Create 10 files of 1M size")
-    file_generation(args, "case_4", 10, 1024 * 1024 * 1024)
+    print("Case 3: Create 100.000 files of 1k size")
+    file_generation(args, "case_3", 100 * 1000, 1024)
+
+    print("Case 4: Create 1000 files of 1M size")
+    file_generation(args, "case_4", 1000, 1024 ** 2)
+
+    print("Case 5: Create 100 files of 1G size")
+    file_generation(args, "case_5", 100, 1024 ** 3)
 
 
 
