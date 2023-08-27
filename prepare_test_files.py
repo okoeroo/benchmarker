@@ -101,24 +101,15 @@ def file_generation(args, case_name, file_count, file_size):
 ### Main
 def main(args):
 
-    print("Case 1: Create 1000 files of 1k size")
     file_generation(args, "case_1", 1000, 1024)
 
-    sys.exit(0)
-
-    print("Case 2: Create 10.000 files of 1k size")
     file_generation(args, "case_2", 10 * 1000, 1024)
 
-    print("Case 3: Create 100.000 files of 1k size")
     file_generation(args, "case_3", 100 * 1000, 1024)
 
-    print("Case 4: Create 1000 files of 1M size")
     file_generation(args, "case_4", 1000, 1024 ** 2)
 
-    print("Case 5: Create 100 files of 1G size")
     file_generation(args, "case_5", 100, 1024 ** 3)
-
-
 
 
 ### Start up
